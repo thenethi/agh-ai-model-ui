@@ -1,0 +1,6 @@
+projectKey=agh-jobs-ai
+serverUrl=http://localhost:9000
+serverVersion=10.6.0.92116
+dashboardUrl=http://localhost:9000/dashboard?id=agh-jobs-ai
+ceTaskId=81303360-3f78-4649-835b-e44943597458
+ceTaskUrl=http://localhost:9000/api/ce/task?id=81303360-3f78-4649-835b-e44943597458
