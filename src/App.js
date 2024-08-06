@@ -9,10 +9,7 @@ const App = () => {
   const [salary, setSalary] = useState("");
   const [availability, setAvailability] = useState("");
   const [jobs, setJobs] = useState([]);
-  const [trainMessage, setTrainMessage] = useState("");
-  const [isModelTrained, setIsModelTrained] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isTraining, setIsTraining] = useState(false);
 
   const skillOptions = [
     { value: "python", label: "Python" },
@@ -120,23 +117,6 @@ const App = () => {
     { value: "3d_modeling", label: "3D Modeling" },
   ];
 
-  const handleTrainModel = async () => {
-    setIsTraining(true);
-    const response = await fetch(
-      "https://agh-jobs-ai-model.onrender.com/api/train",
-      {
-        method: "GET",
-      }
-    );
-    if (response.ok) {
-      setTrainMessage("Model trained successfully");
-      setIsModelTrained(true);
-    } else {
-      setTrainMessage("Failed to train model");
-    }
-    setIsTraining(false);
-  };
-
   const handlePredict = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -174,18 +154,6 @@ const App = () => {
   return (
     <div className="container mt-5">
       <h1 className="text-center">Job Matching App</h1>
-      <button
-        className="btn btn-primary mb-2"
-        onClick={handleTrainModel}
-        disabled={isModelTrained || isTraining}
-      >
-        {isTraining
-          ? "Training..."
-          : isModelTrained
-          ? "Model Trained"
-          : "Train Model"}
-      </button>
-      {trainMessage && <div className="alert alert-info">{trainMessage}</div>}
       <form onSubmit={handlePredict}>
         <div className="mb-3">
           <label htmlFor="skills" className="form-label">
@@ -198,7 +166,6 @@ const App = () => {
             className="basic-multi-select"
             classNamePrefix="select"
             onChange={setSkills}
-            isDisabled={!isModelTrained}
           />
         </div>
         <div className="mb-3">
@@ -212,7 +179,6 @@ const App = () => {
             value={experience}
             onChange={(e) => setExperience(e.target.value)}
             required
-            disabled={!isModelTrained}
           />
         </div>
         <div className="mb-3">
@@ -226,7 +192,6 @@ const App = () => {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             required
-            disabled={!isModelTrained}
           />
         </div>
         <div className="mb-3">
@@ -240,7 +205,6 @@ const App = () => {
             value={salary}
             onChange={(e) => setSalary(e.target.value)}
             required
-            disabled={!isModelTrained}
           />
         </div>
         <div className="mb-3">
@@ -253,7 +217,6 @@ const App = () => {
             value={availability}
             onChange={(e) => setAvailability(e.target.value)}
             required
-            disabled={!isModelTrained}
           >
             <option value="">Select Availability</option>
             <option value="Immediately">Immediately</option>
@@ -264,11 +227,7 @@ const App = () => {
             <option value="Not Available">Not Available</option>
           </select>
         </div>
-        <button
-          type="submit"
-          className="btn btn-success"
-          disabled={isLoading || !isModelTrained}
-        >
+        <button type="submit" className="btn btn-success" disabled={isLoading}>
           {isLoading ? "Loading..." : "Submit"}
         </button>
       </form>
