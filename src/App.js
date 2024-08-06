@@ -5,9 +5,9 @@ import Select from "react-select";
 const App = () => {
   const [skills, setSkills] = useState([]);
   const [experience, setExperience] = useState("");
-  const [location, setLocation] = useState("");
+  const [locations, setLocations] = useState([]);
   const [salary, setSalary] = useState("");
-  const [availability, setAvailability] = useState("");
+  const [availabilities, setAvailabilities] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -117,65 +117,125 @@ const App = () => {
     { value: "3d_modeling", label: "3D Modeling" },
   ];
 
-  const handlePredict = async (e) => {
+  const locationOptions = [
+    { value: "New York", label: "New York" },
+    { value: "San Francisco", label: "San Francisco" },
+    { value: "Remote", label: "Remote" },
+    { value: "Chicago", label: "Chicago" },
+    { value: "Boston", label: "Boston" },
+    { value: "Austin", label: "Austin" },
+    { value: "Seattle", label: "Seattle" },
+    { value: "Los Angeles", label: "Los Angeles" },
+    { value: "San Diego", label: "San Diego" },
+    { value: "Philadelphia", label: "Philadelphia" },
+    { value: "Dallas", label: "Dallas" },
+    { value: "Denver", label: "Denver" },
+    { value: "Washington DC", label: "Washington DC" },
+    { value: "Atlanta", label: "Atlanta" },
+    { value: "Miami", label: "Miami" },
+    { value: "Houston", label: "Houston" },
+    { value: "San Jose", label: "San Jose" },
+    { value: "Cleveland", label: "Cleveland" },
+    { value: "Orlando", label: "Orlando" },
+    { value: "Charlotte", label: "Charlotte" },
+    { value: "Minneapolis", label: "Minneapolis" },
+    { value: "Detroit", label: "Detroit" },
+    { value: "Indianapolis", label: "Indianapolis" },
+    { value: "Pittsburgh", label: "Pittsburgh" },
+    { value: "St. Louis", label: "St. Louis" },
+    { value: "Baltimore", label: "Baltimore" },
+    { value: "Nashville", label: "Nashville" },
+    { value: "Kansas City", label: "Kansas City" },
+    { value: "Columbus", label: "Columbus" },
+    { value: "Salt Lake City", label: "Salt Lake City" },
+    { value: "Portland", label: "Portland" },
+    { value: "San Antonio", label: "San Antonio" },
+    { value: "Sacramento", label: "Sacramento" },
+    { value: "San Bernardino", label: "San Bernardino" },
+    { value: "Cincinnati", label: "Cincinnati" },
+    { value: "Jacksonville", label: "Jacksonville" },
+    { value: "Tampa", label: "Tampa" },
+    { value: "Raleigh", label: "Raleigh" },
+    { value: "Omaha", label: "Omaha" },
+    { value: "Louisville", label: "Louisville" },
+    { value: "Milwaukee", label: "Milwaukee" },
+    { value: "Birmingham", label: "Birmingham" },
+    { value: "Tulsa", label: "Tulsa" },
+    { value: "Memphis", label: "Memphis" },
+    { value: "Richmond", label: "Richmond" },
+    { value: "Buffalo", label: "Buffalo" },
+    { value: "Phoenix", label: "Phoenix" },
+    { value: "Washington, D.C.", label: "Washington, D.C." },
+  ];
+
+  const availabilityOptions = [
+    { value: "Immediately", label: "Immediately" },
+    { value: "1-2 Weeks", label: "1-2 Weeks" },
+    { value: "1 Month", label: "1 Month" },
+    { value: "Flexible", label: "Flexible" },
+    { value: "Not Available", label: "Not Available" },
+    { value: "2 Weeks", label: "2 Weeks" },
+  ];
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const selectedSkills = skills.map((skill) => skill.value).join(" ");
-
-    const requestBody = {
-      skills: selectedSkills,
+    const jobPreferences = {
+      skills: skills.map((skill) => skill.value).join(" "),
       experience: parseInt(experience),
-      location,
+      location: locations.map((location) => location.value),
       salary: parseInt(salary),
-      availability,
+      availability: availabilities.map((availability) => availability.value),
     };
 
-    const response = await fetch(
-      "https://agh-jobs-ai-model.onrender.com/api/predict",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      }
-    );
+    try {
+      const response = await fetch(
+        "https://agh-jobs-ai-model.onrender.com/api/predict",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(jobPreferences),
+        }
+      );
 
-    if (response.ok) {
       const data = await response.json();
       setJobs(data);
-    } else {
-      console.error("Failed to fetch job predictions");
+    } catch (error) {
+      console.error("Error fetching job matches:", error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
-    <div className="container mt-5">
-      <h1 className="text-center">Job Matching App</h1>
-      <form onSubmit={handlePredict}>
+    <div className="container">
+      <h1>Job Matcher</h1>
+      <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label htmlFor="skills" className="form-label">
             Skills
           </label>
           <Select
+            id="skills"
             isMulti
-            name="skills"
             options={skillOptions}
             className="basic-multi-select"
             classNamePrefix="select"
+            value={skills}
             onChange={setSkills}
           />
         </div>
         <div className="mb-3">
           <label htmlFor="experience" className="form-label">
-            Experience (years)
+            Years of Experience
           </label>
           <input
             type="number"
-            className="form-control"
             id="experience"
+            className="form-control"
             value={experience}
             onChange={(e) => setExperience(e.target.value)}
             required
@@ -183,15 +243,16 @@ const App = () => {
         </div>
         <div className="mb-3">
           <label htmlFor="location" className="form-label">
-            Preferred Location
+            Preferred Locations
           </label>
-          <input
-            type="text"
-            className="form-control"
+          <Select
             id="location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            required
+            isMulti
+            options={locationOptions}
+            className="basic-multi-select"
+            classNamePrefix="select"
+            value={locations}
+            onChange={setLocations}
           />
         </div>
         <div className="mb-3">
@@ -200,8 +261,8 @@ const App = () => {
           </label>
           <input
             type="number"
-            className="form-control"
             id="salary"
+            className="form-control"
             value={salary}
             onChange={(e) => setSalary(e.target.value)}
             required
@@ -211,44 +272,52 @@ const App = () => {
           <label htmlFor="availability" className="form-label">
             Availability
           </label>
-          <select
-            className="form-control"
+          <Select
             id="availability"
-            value={availability}
-            onChange={(e) => setAvailability(e.target.value)}
-            required
-          >
-            <option value="">Select Availability</option>
-            <option value="Immediately">Immediately</option>
-            <option value="1-2 Weeks">1-2 Weeks</option>
-            <option value="2 Weeks">2 Weeks</option>
-            <option value="1 Month">1 Month</option>
-            <option value="Flexible">Flexible</option>
-            <option value="Not Available">Not Available</option>
-          </select>
+            isMulti
+            options={availabilityOptions}
+            className="basic-multi-select"
+            classNamePrefix="select"
+            value={availabilities}
+            onChange={setAvailabilities}
+          />
         </div>
-        <button type="submit" className="btn btn-success" disabled={isLoading}>
-          {isLoading ? "Loading..." : "Submit"}
+        <button type="submit" className="btn btn-primary" disabled={isLoading}>
+          {isLoading ? "Loading..." : "Find Jobs"}
         </button>
       </form>
       <div className="mt-5">
-        {jobs.length > 0 && (
-          <div>
-            <h2>Job Matches</h2>
-            <ul className="list-group">
-              {jobs.map((job, index) => (
-                <li key={index} className="list-group-item">
-                  <h5>{job.job.title}</h5>
-                  <p>Location: {job.job.location}</p>
-                  <p>Experience: {job.job.experience} years</p>
-                  <p>Salary: ${job.job.salary}</p>
-                  <p>Skills: {job.job.skills}</p>
-                  <p>Availability: {job.job.availability}</p>
-                  <p>Match Score: {(job.match_score * 100).toFixed(2)}%</p>
-                </li>
-              ))}
-            </ul>
-          </div>
+        <h2>Job Matches</h2>
+        {jobs.length > 0 ? (
+          <ul className="list-group">
+            {jobs.map((job, index) => (
+              <li key={index} className="list-group-item">
+                <h5>{job.job.title}</h5>
+                <p>
+                  Location:{" "}
+                  {Array.isArray(job.job.location)
+                    ? job.job.location.join(", ")
+                    : job.job.location}
+                </p>
+                <p>Experience: {job.job.experience} years</p>
+                <p>Salary: ${job.job.salary}</p>
+                <p>
+                  Skills:{" "}
+                  {Array.isArray(job.job.skills)
+                    ? job.job.skills.join(", ")
+                    : job.job.skills}
+                </p>
+                <p>
+                  Availability:{" "}
+                  {Array.isArray(job.job.availability)
+                    ? job.job.availability.join(", ")
+                    : job.job.availability}
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No job matches found.</p>
         )}
       </div>
     </div>
